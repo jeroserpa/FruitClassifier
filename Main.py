@@ -12,6 +12,9 @@ import glob
 from Fruits import Fruit as F
 import numpy as np
 from histogram_analisys import plotter
+from k_means import kmeans 
+
+
 
 def main():
     
@@ -70,7 +73,19 @@ def main():
     #print(hu_o)
     
     
-    plotter(0,hu_b,hu_o,hu_l)
+    #plotter(0,hu_b,hu_o,hu_l)
+    
+    
+    '''k-means'''
+    
+    fruits = fruits_b + fruits_l + fruits_o
+    
+    km = kmeans(fruits)
+    
+    
+    
+    
+    
     
 
 if __name__ == '__main__':

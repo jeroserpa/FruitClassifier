@@ -26,8 +26,6 @@ def main():
 
     lemons_training = glob.glob("C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Lemon\\*")
 
-
-    #print(len(bananas_training))
     
     '''Init Fruits objects'''
     fruits_b = []
@@ -42,7 +40,6 @@ def main():
     for path in lemons_training:
        fruits_l.append(F(path,'lemons'))            
         
-    #print(len(fruits))
     
     mean0 = np.mean([f.hu[0] for f in fruits_l])
     # sd0 = np.std([f.hu[0] for f in fruits])
@@ -51,7 +48,9 @@ def main():
     # print(sd0)
 
     #print(fruits[0].hu.shape)
+  
     
+  
     '''Retreive Hu moments'''
 
     hu_b = np.zeros((7,len(fruits_b)),dtype=np.float_) 
@@ -81,6 +80,11 @@ def main():
     fruits = fruits_b + fruits_l + fruits_o
     
     km = kmeans(fruits)
+    
+    
+    
+    
+    
     
     
     

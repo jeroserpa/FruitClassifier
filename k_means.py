@@ -19,12 +19,33 @@ from scipy.spatial import distance
 
 class kmeans:
 
-    def __init__(self,Fruits,k = 3,centroids = None):
+    def __init__(self,Fruits,k = 3,centroids = None,plot = True):
         
         self.Fruits = Fruits
         self.k = k
         self.centroids = []
+        self.learned_centroids = []
         self.Firsttime = True
+        self.plot = plot
+        
+        self.category = [None] * 3
+        
+        self.Av = {
+            'b': 0,
+            'o': 0,
+            'l': 0
+            }
+        self.Bv = {
+            'b': 0,
+            'o': 0,
+            'l': 0
+            }
+        self.Cv = {
+            'b': 0,
+            'o': 0,
+            'l': 0
+            }
+        
         
         
         #Min and max for random centroids
@@ -66,14 +87,38 @@ class kmeans:
    
     
             self.centroids = new_centroids
+        
+        
+        
+        self.learned_centroids = self.centroids
         print('------------------')
-        print(self.centroids)
+        print(self.learned_centroids)
         print('------------------')
+        
+        
     
     def estimate(self):
-        
+        self.Av = {
+            'b': 0,
+            'o': 0,
+            'l': 0
+            }
+        self.Bv = {
+            'b': 0,
+            'o': 0,
+            'l': 0
+            }
+        self.Cv = {
+            'b': 0,
+            'o': 0,
+            'l': 0
+            }
         
         A,B,C = [],[],[]
+        
+
+
+        
         All = []
         for fruit in self.Fruits:
             position = (fruit.hu[1],fruit.hu[3])
@@ -90,22 +135,51 @@ class kmeans:
             if nearest == 0: 
                 fruit.guess = 'A'
                 A.append(position)
+                '''vote for centroid label'''
+                if fruit.label == "bananas":
+                    self.Av['b']+=1
+                elif fruit.label == "oranges":
+                    self.Av['o']+=1
+                elif fruit.label == "lemons":
+                    self.Av['l']+=1
         
             if nearest == 1: 
                 fruit.guess = 'B'
                 B.append(position)
+                '''vote for centroid label'''
+                if fruit.label == "bananas":
+                    self.Bv['b']+=1
+                elif fruit.label == "oranges":
+                    self.Bv['o']+=1
+                elif fruit.label == "lemons":
+                    self.Bv['l']+=1
+                
+                
             if nearest == 2: 
                 fruit.guess = 'C'
                 C.append(position)
+                '''vote for centroid label'''
+                if fruit.label == "bananas":
+                    self.Cv['b']+=1
+                elif fruit.label == "oranges":
+                    self.Cv['o']+=1
+                elif fruit.label == "lemons":
+                    self.Cv['l']+=1
+    
+        #Debug for voting system
+        # print('Votes')
+        # print(self.Av,self.Bv,self.Cv)
+        # print(max(self.Av, key=self.Av.get))    
+        # print(len(self.Fruits))
         
         '''Plot First centroids and all together'''
         
         if self.Firsttime is True:
-        
-            plt.scatter((np.asarray(All)[:,0]),(np.asarray(All)[:,1]))
-            plt.scatter((np.asarray(self.centroids)[:,0]),(np.asarray(self.centroids)[:,1]),color = 'r',marker = 'X')
-            plt.show()
-            self.Firsttime = False
+            if self.plot is True:
+                plt.scatter((np.asarray(All)[:,0]),(np.asarray(All)[:,1]))
+                plt.scatter((np.asarray(self.centroids)[:,0]),(np.asarray(self.centroids)[:,1]),color = 'r',marker = 'X')
+                plt.show()
+                self.Firsttime = False
             
             
         '''update centroids'''
@@ -128,24 +202,110 @@ class kmeans:
         
         new_centroids = [(hu1_meanA,hu3_meanA),(hu1_meanB,hu3_meanB),(hu1_meanC,hu3_meanC)]
             
-  
-        plt.scatter((np.asarray(A)[:,0]),(np.asarray(A)[:,1]))
-        plt.scatter((np.asarray(B)[:,0]),(np.asarray(B)[:,1]))
-        plt.scatter((np.asarray(C)[:,0]),(np.asarray(C)[:,1]))
-        plt.scatter((np.asarray(self.centroids)[:,0]),(np.asarray(self.centroids)[:,1]),color = 'k',marker = 'X')
-
-        plt.show()
-        
-        plt.scatter((np.asarray(A)[:,0]),(np.asarray(A)[:,1]))
-        plt.scatter((np.asarray(B)[:,0]),(np.asarray(B)[:,1]))
-        plt.scatter((np.asarray(C)[:,0]),(np.asarray(C)[:,1]))
-        plt.scatter((np.asarray(new_centroids)[:,0]),(np.asarray(new_centroids)[:,1]),color = 'k',marker = 'X')
-        # plt.scatter((np.asarray(self.centroids)[:,0]),(np.asarray(self.centroids)[:,1]),color = 'r',marker = 'X')
-
-        plt.show()
-        
+        if self.plot is True:
+            plt.scatter((np.asarray(A)[:,0]),(np.asarray(A)[:,1]))
+            plt.scatter((np.asarray(B)[:,0]),(np.asarray(B)[:,1]))
+            plt.scatter((np.asarray(C)[:,0]),(np.asarray(C)[:,1]))
+            plt.scatter((np.asarray(self.centroids)[:,0]),(np.asarray(self.centroids)[:,1]),color = 'k',marker = 'X')
+            plt.show()        
+            plt.scatter((np.asarray(A)[:,0]),(np.asarray(A)[:,1]))
+            plt.scatter((np.asarray(B)[:,0]),(np.asarray(B)[:,1]))
+            plt.scatter((np.asarray(C)[:,0]),(np.asarray(C)[:,1]))
+            plt.scatter((np.asarray(new_centroids)[:,0]),(np.asarray(new_centroids)[:,1]),color = 'k',marker = 'X')
+            # plt.scatter((np.asarray(self.centroids)[:,0]),(np.asarray(self.centroids)[:,1]),color = 'r',marker = 'X')
+            plt.show()
+            
         
         
         return new_centroids
+        
+    
+    def classify(self,Fruits,plot = True):
+        
+        A,B,C = [],[],[] 
+        
+        '''This blocks finds the correct label for each category'''
+        
+        
+        
+        if max(self.Av, key=self.Av.get) == 'b':
+            self.category[0] = 'b'
+        elif max(self.Av, key=self.Av.get) == 'o':    
+            self.category[0] = 'o'
+        elif max(self.Av, key=self.Av.get) == 'l':    
+            self.category[0] = 'l'
+        
+        if max(self.Bv, key=self.Bv.get) == 'b':
+            self.category[1] = 'b'
+        elif max(self.Bv, key=self.Bv.get) == 'o':    
+            self.category[1] = 'o'
+        elif max(self.Bv, key=self.Bv.get) == 'l':    
+            self.category[1] = 'l'    
+            
+        if max(self.Cv, key=self.Cv.get) == 'b':
+            self.category[2] = 'b'
+        elif max(self.Cv, key=self.Cv.get) == 'o':    
+            self.category[2] = 'o'
+        elif max(self.Cv, key=self.Cv.get) == 'l':    
+            self.category[2] = 'l'     
+        
+        '''   '''  
+            
+        '''we analyze each fruit and put it in the estimated category'''
+        for fruit in Fruits:
+            position = (fruit.hu[1],fruit.hu[3])
+            d = []
+                        
+            for c in self.learned_centroids:
+                d.append(distance.euclidean(position, c)) #For each centroid we calculate the distance with the current fruit and load it to a list
+            
+            nearest = np.argmin(d) #We obtain the index of the nearest centroid
+            
+            # we assign the fruit to a group corresponding to the nearest centroid
+            if nearest == 0: 
+                fruit.guess = self.category[nearest]
+                A.append(position)
+        
+            if nearest == 1: 
+                fruit.guess = self.category[nearest]
+                B.append(position)
+            if nearest == 2: 
+                fruit.guess = self.category[nearest]
+                C.append(position)
+                
+            #print(fruit.guess)
+            #print(fruit.label)
+                
+        if plot is True:    
+                        
+            if len(A) > 0:
+                
+                plt.scatter((np.asarray(A)[:,0]),(np.asarray(A)[:,1]),label = self.category[0] )
+    
+            if len(B) > 0:
+                plt.scatter((np.asarray(B)[:,0]),(np.asarray(B)[:,1]),label = self.category[1])
+            
+            if len(C) > 0:
+                plt.scatter((np.asarray(C)[:,0]),(np.asarray(C)[:,1]),label = self.category[2])
+    
+            plt.scatter((np.asarray(self.learned_centroids)[:,0]),(np.asarray(self.learned_centroids)[:,1]),color = 'k',marker = 'X')
+    
+        
+            plt.legend(loc = 'lower right')
+            plt.show()  
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         

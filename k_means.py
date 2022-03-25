@@ -19,17 +19,21 @@ from scipy.spatial import distance
 
 class kmeans:
 
-    def __init__(self,Fruits,k = 3,centroids = None,plot = True):
+    def __init__(self,Fruits,k = 3,centroids = None,plot = True, debug = False):
         
-        self.Fruits = Fruits
-        self.k = k
-        self.centroids = []
-        self.learned_centroids = []
-        self.Firsttime = True
-        self.plot = plot
+        self.Fruits = Fruits # list of Fruit objects
+        self.k = k # K for kmeans, FIXED AT 3 (it was supposed to be variable but fixed for convinience )
+        self.centroids = [] #centroid at each iteration 
+        self.learned_centroids = [] #final centroids after iterating
+        self.Firsttime = True 
+        self.plot = plot #flag to plot
+        self.debug = debug #flag to print info
+        self.iterations = 0 #number of iteration until tolerance reached 
+        self.tolerance = 0.1 #distance tolerance for the centroids update (less than this and it will stop iterating)
         
-        self.category = [None] * 3
+        self.category = [None] * 3 #used to find groups labels 
         
+        #voting system to find groups labels
         self.Av = {
             'b': 0,
             'o': 0,
@@ -46,6 +50,8 @@ class kmeans:
             'l': 0
             }
         
+        self.Groups = { }
+        
         
         
         #Min and max for random centroids
@@ -54,7 +60,8 @@ class kmeans:
         hu3_min = 9.5
         hu3_max = 20
         
-        seed(2)        
+        seed(1)
+        #seed(2)        
         
         
         #get or create first centroids
@@ -63,15 +70,16 @@ class kmeans:
         else:
             for k in range(k):
                 self.centroids.append((random.uniform(hu1_min, hu1_max),random.uniform(hu3_min, hu3_max)))
-        print('First centroids')
-        print(self.centroids)
+        
+        if self.debug is True:
+            print('First centroids:')
+            print(self.centroids)
         
         
         
         #Loop  for iterate on the k-menas algorithm
         
         flag = True
-        tolerance = 0.001 #distance tolerance for the centroids update (less than this and it will stop iterating)
         while flag is True:
             new_centroids = self.estimate()
             
@@ -80,20 +88,100 @@ class kmeans:
             distanceC = distance.euclidean(self.centroids[2], new_centroids[2])
         
             
-            if distanceA< tolerance and distanceB< tolerance and distanceC < tolerance:
+            if distanceA< self.tolerance and distanceB< self.tolerance and distanceC < self.tolerance:
                 flag = False
-            print('Distances')
-            print(distanceA,distanceB,distanceC)
+            
+            if self.debug is True:
+                print('Distances:')
+                print(distanceA,distanceB,distanceC)
    
     
             self.centroids = new_centroids
-        
+            self.iterations += 1
         
         
         self.learned_centroids = self.centroids
         print('------------------')
+        print('Learned centroids:')
         print(self.learned_centroids)
         print('------------------')
+        
+        '''This blocks finds the correct label for each category'''
+        
+        
+        
+        if max(self.Av, key=self.Av.get) == 'b':
+            self.category[0] = 'b'
+        elif max(self.Av, key=self.Av.get) == 'o':    
+            self.category[0] = 'o'
+        elif max(self.Av, key=self.Av.get) == 'l':    
+            self.category[0] = 'l'
+        
+        if max(self.Bv, key=self.Bv.get) == 'b':
+            self.category[1] = 'b'
+        elif max(self.Bv, key=self.Bv.get) == 'o':    
+            self.category[1] = 'o'
+        elif max(self.Bv, key=self.Bv.get) == 'l':    
+            self.category[1] = 'l'    
+            
+        if max(self.Cv, key=self.Cv.get) == 'b':
+            self.category[2] = 'b'
+        elif max(self.Cv, key=self.Cv.get) == 'o':    
+            self.category[2] = 'o'
+        elif max(self.Cv, key=self.Cv.get) == 'l':    
+            self.category[2] = 'l'     
+        
+        '''   '''  
+        
+        self.Groups = {
+            'A': self.category[0],
+            'B': self.category[1],
+            'C': self.category[2]
+            }
+        
+        #print(Groups)
+        
+        
+        
+        '''Find wrong categorization'''
+        
+        notB = []
+        notO = []
+        notL = []
+        errors = []
+        for fruit in Fruits:
+            if fruit.label == 'b' and fruit.label != self.Groups[fruit.guess]:
+                notB.append(fruit)
+                errors.append((fruit.label,self.Groups[fruit.guess]))
+            if fruit.label == 'o' and fruit.label != self.Groups[fruit.guess]:
+                notO.append(fruit)
+                errors.append((fruit.label,self.Groups[fruit.guess]))
+            if fruit.label == 'l' and fruit.label != self.Groups[fruit.guess]:
+                notL.append(fruit)
+                errors.append((fruit.label,self.Groups[fruit.guess]))
+       
+        if debug is True:
+            print('Errors(label,guess):')
+            print(errors)
+        
+        
+        
+        
+        error_p = (len(errors)/len(Fruits))*100
+        print('Categorization error percentage:')
+        print(error_p,'%')
+        
+        print('Tolerance:')
+        print(self.tolerance)
+        print('Number of iterations:')
+        print(self.iterations)
+        
+        # print(len(notO),len(notL))
+        # for fruit in notL:
+        #     print(fruit.label)
+        
+        
+        
         
         
     
@@ -136,22 +224,22 @@ class kmeans:
                 fruit.guess = 'A'
                 A.append(position)
                 '''vote for centroid label'''
-                if fruit.label == "bananas":
+                if fruit.label == "b":
                     self.Av['b']+=1
-                elif fruit.label == "oranges":
+                elif fruit.label == "o":
                     self.Av['o']+=1
-                elif fruit.label == "lemons":
+                elif fruit.label == "l":
                     self.Av['l']+=1
         
             if nearest == 1: 
                 fruit.guess = 'B'
                 B.append(position)
                 '''vote for centroid label'''
-                if fruit.label == "bananas":
+                if fruit.label == "b":
                     self.Bv['b']+=1
-                elif fruit.label == "oranges":
+                elif fruit.label == "o":
                     self.Bv['o']+=1
-                elif fruit.label == "lemons":
+                elif fruit.label == "l":
                     self.Bv['l']+=1
                 
                 
@@ -159,11 +247,11 @@ class kmeans:
                 fruit.guess = 'C'
                 C.append(position)
                 '''vote for centroid label'''
-                if fruit.label == "bananas":
+                if fruit.label == "b":
                     self.Cv['b']+=1
-                elif fruit.label == "oranges":
+                elif fruit.label == "o":
                     self.Cv['o']+=1
-                elif fruit.label == "lemons":
+                elif fruit.label == "l":
                     self.Cv['l']+=1
     
         #Debug for voting system
@@ -224,32 +312,7 @@ class kmeans:
         
         A,B,C = [],[],[] 
         
-        '''This blocks finds the correct label for each category'''
-        
-        
-        
-        if max(self.Av, key=self.Av.get) == 'b':
-            self.category[0] = 'b'
-        elif max(self.Av, key=self.Av.get) == 'o':    
-            self.category[0] = 'o'
-        elif max(self.Av, key=self.Av.get) == 'l':    
-            self.category[0] = 'l'
-        
-        if max(self.Bv, key=self.Bv.get) == 'b':
-            self.category[1] = 'b'
-        elif max(self.Bv, key=self.Bv.get) == 'o':    
-            self.category[1] = 'o'
-        elif max(self.Bv, key=self.Bv.get) == 'l':    
-            self.category[1] = 'l'    
-            
-        if max(self.Cv, key=self.Cv.get) == 'b':
-            self.category[2] = 'b'
-        elif max(self.Cv, key=self.Cv.get) == 'o':    
-            self.category[2] = 'o'
-        elif max(self.Cv, key=self.Cv.get) == 'l':    
-            self.category[2] = 'l'     
-        
-        '''   '''  
+       
             
         '''we analyze each fruit and put it in the estimated category'''
         for fruit in Fruits:
@@ -295,9 +358,27 @@ class kmeans:
             plt.show()  
         
         
+        errors = []
+        for fruit in Fruits:
+            if fruit.label == 'b' and fruit.label != fruit.guess:
+                errors.append((fruit.label,fruit.guess))
+            if fruit.label == 'o' and fruit.label != fruit.guess:
+                errors.append((fruit.label,fruit.guess))
+            if fruit.label == 'l' and fruit.label != fruit.guess:
+                errors.append((fruit.label,fruit.guess))
         
+    
+    
+    
+        print('-------------------------')
+    
+    
+        error_p = (len(errors)/len(Fruits))*100
+        print('Categorization error percentage:')
+        print(error_p,'%')
+        print(errors)
         
-        
+            
         
         
         

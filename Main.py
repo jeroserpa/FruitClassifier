@@ -13,28 +13,42 @@ from Fruits import Fruit as F
 import numpy as np
 from histogram_analisys import plotter
 from k_means import kmeans 
+import random
 
+
+from knn import knn
 
 
 class FruitClassifier():
     
-    def __init__(self,path_b,path_o,path_l):
+    def __init__(self,path_b,path_o,path_l,path_bt,path_ot,path_lt):
         
         self.path_b = path_b
         self.path_o = path_o
         self.path_l = path_l
-  
+
+        self.path_bt = path_bt
+        self.path_ot = path_ot
+        self.path_lt = path_lt        
     
         self.fruits_b = []
         self.fruits_o = []
         self.fruits_l = []
         self.fruits = []
+
+        self.fruits_bt = []
+        self.fruits_ot = []
+        self.fruits_lt = []
+        self.fruits_t = []
+
+
+
         #self.fruits_test = []
    
     
     
     
-   
+        '''training'''
         
         '''create lists with paths to each image'''
         bananas_training = glob.glob(self.path_b)
@@ -47,36 +61,61 @@ class FruitClassifier():
         '''Init Fruits objects'''
         #fruits_b = []
         for path in bananas_training:
-            self.fruits_b.append(F(path,'bananas'))
+            self.fruits_b.append(F(path,'b'))
             
         # fruits_o = []
         for path in oranges_training:
-           self.fruits_o.append(F(path,'oranges'))        
+           self.fruits_o.append(F(path,'o'))        
         
         # fruits_l = []
         for path in lemons_training:
-           self.fruits_l.append(F(path,'lemons'))            
-     
+           self.fruits_l.append(F(path,'l'))      
+           
+        self.fruits = self.fruits_b + self.fruits_o + self.fruits_l
         
-    def learn(self,plot = False):
+        '''Testing'''
+        
+        '''create lists with paths to each image'''
+        bananas_training_t = glob.glob(self.path_bt)
+
+        oranges_training_t = glob.glob(self.path_ot)
+    
+        lemons_training_t = glob.glob(self.path_lt)
+    
+    
+        '''Init Fruits objects'''
+        #fruits_b = []
+        for path in bananas_training_t:
+            self.fruits_bt.append(F(path,'b'))
+            
+        # fruits_o = []
+        for path in oranges_training_t:
+           self.fruits_ot.append(F(path,'o'))        
+        
+        # fruits_l = []
+        for path in lemons_training_t:
+           self.fruits_lt.append(F(path,'l'))      
+           
+        self.fruits_t = self.fruits_bt + self.fruits_ot + self.fruits_lt
+        random.shuffle(self.fruits_t) # mix fruits to make it mor "realistic"
+        
+    def learn_kmeans(self,plot = False):
         '''k-means'''
           
-        self.fruits = self.fruits_b + self.fruits_l + self.fruits_o
+        #self.fruits = self.fruits_b + self.fruits_l + self.fruits_o
           
         self.km = kmeans(self.fruits, plot = plot)
         
         return self.km 
         
         
-    def sort(self,km,path_t,plot = True):  
+    def sort_kmeans(self,km,plot = True):  
         
-        fruits_test = []
+
         
-        fruits_test_paths = glob.glob(path_t)
-        for path in fruits_test_paths:
-            fruits_test.append(F(path,'bananas'))
-            
-        km.classify(fruits_test,plot = plot)
+        random.shuffle(self.fruits_t) # mix fruits to make it mor "realistic"
+           
+        km.classify(self.fruits_t,plot = plot)
         
         
         
@@ -118,25 +157,41 @@ class FruitClassifier():
     
         plotter(hu_moment_N,hu_b,hu_o,hu_l)
     
-    
+    def start_knn(self,k = 3):
+        
+        
+        
+        Knn = knn(self.fruits_b,self.fruits_o,self.fruits_l)
 
-    
+        return Knn
+    def classify_knn(self,knn):
+         pass 
     
 def main():    
     
     path_b ="C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Banana\\*"
     path_o ="C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Orange\\*"
     path_l ="C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Lemon\\*" 
+   
+    path_bt ="C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Test\\Banana\\*"
+    path_ot ="C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Test\\Orange\\*"
+    path_lt ="C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Test\\Lemon\\*" 
+   
+    fc = FruitClassifier(path_b, path_o, path_l,path_bt,path_ot,path_lt) 
     
-    #path_t = "C:\\Users\\jeros\\OneDrive\\Documentos\\FING\IA 1\\fruits-360_dataset\\fruits-360\\Test\\Banana\\*"
-    path_t = "C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Test\\Bananas+Oranges+Lemons\\*"
-    fc = FruitClassifier(path_b, path_o, path_l) 
-    
+   
     #fc.histogram()
-    km = fc.learn(plot = False)
+    # km = fc.learn_kmeans(plot = False)
     
-    fc.sort(km,path_t,plot = True)
+    # fc.sort_kmeans(km,plot = True)
     
+
+
+    Knn = fc.start_knn(2)
+    
+    Knn.classify(fc.fruits_t)
+    
+# 
 
 if __name__ == '__main__':
     main()

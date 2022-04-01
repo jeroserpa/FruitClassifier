@@ -24,14 +24,15 @@ class Fruit:
         img_gf = np.zeros((100,100,1),np.uint8)
         
         if self.debug is True:
+            #plt.figure(1)
+            #plt.imshow(img)
             plt.figure(1)
-            plt.imshow(img)
-            # plt.figure(2)
-            #plt.imshow(img_g,cmap='gray') 
+            plt.imshow(img_g,cmap='gray') 
         
         img_gf = cv.bilateralFilter(img_g,15,80,80)
         
         if self.debug is True:
+            plt.figure(2)
             plt.imshow(img_gf,cmap='gray') 
         
         
@@ -69,10 +70,10 @@ class Fruit:
         
 def main():
     
-    #path = r'C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Banana\\0_100.jpg'
-    path = r'C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Orange\\0_100.jpg'
+    path = r'C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Banana\\0_100.jpg'
+    #path = r'C:\\Users\\jeros\\OneDrive\\Documentos\\FING\\IA 1\\fruits-360_dataset\\fruits-360\\Training\\Orange\\0_100.jpg'
     
-    F = Fruit(path,debug = False)
+    F = Fruit(path,debug = True)
     
 if __name__ == '__main__':
     main()

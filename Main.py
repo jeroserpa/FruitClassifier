@@ -104,7 +104,7 @@ class FruitClassifier():
           
         #self.fruits = self.fruits_b + self.fruits_l + self.fruits_o
           
-        self.km = kmeans(self.fruits, plot = plot)
+        self.km = kmeans(self.fruits, plot = plot, debug = True)
         
         return self.km 
         
@@ -157,11 +157,11 @@ class FruitClassifier():
     
         plotter(hu_moment_N,hu_b,hu_o,hu_l)
     
-    def start_knn(self,k = 3):
+    def start_knn(self,k = 3,plot = True):
         
         
         
-        Knn = knn(self.fruits_b,self.fruits_o,self.fruits_l)
+        Knn = knn(self.fruits_b,self.fruits_o,self.fruits_l,k = k,plot = plot)
 
         return Knn
     def classify_knn(self,knn):
@@ -180,17 +180,20 @@ def main():
     fc = FruitClassifier(path_b, path_o, path_l,path_bt,path_ot,path_lt) 
     
    
-    #fc.histogram()
+    #for i in range(7):
+        #fc.histogram(i)
+    
     # km = fc.learn_kmeans(plot = False)
     
-    # fc.sort_kmeans(km,plot = True)
+    # fc.sort_kmeans(km,plot = False)
     
 
+    # for i in range(2,10):
+    #     #print(i)
+    Knn = fc.start_knn(k = 5,plot = True)
 
-    Knn = fc.start_knn(2)
-    
     Knn.classify(fc.fruits_t)
-    
+
 # 
 
 if __name__ == '__main__':

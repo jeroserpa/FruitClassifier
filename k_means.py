@@ -163,6 +163,9 @@ class kmeans:
         if debug is True:
             print('Errors(label,guess):')
             print(errors)
+            print(len(errors))
+            print('Number of fruits analyzed:')
+            print(len(Fruits))
         
         
         

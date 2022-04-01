@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 """
 Created on Fri Mar 25 15:30:51 2022
 
@@ -25,7 +25,7 @@ class knn:
         self.Fruits_l = Fruits_l
         self.k = k
         self.d = d
-        
+        self.plot = plot
         
         # group_b = []
         # group_o = []
@@ -109,9 +109,9 @@ class knn:
             if fruit.guess == 'o': 
                 O.append(position)
     
-        plot  = True
         
-        if plot is True:    
+        
+        if self.plot is True:    
                         
             if len(B) > 0:
                 
@@ -145,7 +145,7 @@ class knn:
         print('Categorization error percentage:')
         print(error_p,'%')
         print(errors)
-       
+        print(self.k)
         
         
         

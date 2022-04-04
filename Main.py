@@ -183,14 +183,14 @@ def main():
     #for i in range(7):
         #fc.histogram(i)
     
-    # km = fc.learn_kmeans(plot = False)
+    # km = fc.learn_kmeans(plot = True)
     
-    # fc.sort_kmeans(km,plot = False)
+    # fc.sort_kmeans(km,plot = True)
     
 
     # for i in range(2,10):
     #     #print(i)
-    Knn = fc.start_knn(k = 5,plot = True)
+    Knn = fc.start_knn(k =100,plot = True)
 
     Knn.classify(fc.fruits_t)
 
